@@ -27,28 +27,43 @@ defmodule WCore.Telemetry.WriteBehind do
   end
 
   defp flush_to_db do
-    Cache.table()
-    |> :ets.tab2list()
-    |> Enum.each(&persist/1)
+    persist()
   end
 
-  defp persist({node_id, status, count, payload, timestamp}) do
-    Repo.insert!(
-      %NodeMetric{
-        node_id: node_id,
-        status: status,
-        total_events_processed: count,
-        last_payload: payload,
-        last_seen_at: timestamp
-      },
-      on_conflict: [
-        set: [
+  defp persist do
+    table = Cache.table()
+
+    entries =
+      :ets.tab2list(table)
+      |> Enum.map(fn {node_id, status, count, payload, timestamp} ->
+        %{
+          node_id: node_id,
+          status: status,
           total_events_processed: count,
           last_payload: payload,
-          last_seen_at: timestamp
-        ]
-      ],
-      conflict_target: :node_id
-    )
+          last_seen_at: timestamp,
+          inserted_at: DateTime.utc_now(),
+          updated_at: DateTime.utc_now()
+        }
+      end)
+
+    case entries do
+      [] ->
+        :ok
+
+      _ ->
+        Repo.insert_all(
+          NodeMetric,
+          entries,
+          on_conflict: {:replace, [
+            :status,
+            :total_events_processed,
+            :last_payload,
+            :last_seen_at,
+            :updated_at
+          ]},
+          conflict_target: [:node_id]
+        )
+    end
   end
 end
