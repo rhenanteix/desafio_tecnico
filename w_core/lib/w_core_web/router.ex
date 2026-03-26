@@ -18,6 +18,10 @@ defmodule WCoreWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+
+    live_session :default do
+      live "/dashboard", DashboardLive
+    end
   end
 
   # Other scopes may use custom stacks.

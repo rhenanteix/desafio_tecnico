@@ -1,0 +1,1 @@
+Optei por classes estáticas ou inline source devido ao comportamento de tree-shaking do Tailwind v4, evitando perda de estilos dinâmicos em runtime.

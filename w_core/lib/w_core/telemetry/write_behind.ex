@@ -38,7 +38,7 @@ defmodule WCore.Telemetry.WriteBehind do
       |> Enum.map(fn {node_id, status, count, payload, timestamp} ->
         %{
           node_id: node_id,
-          status: status,
+          status: Atom.to_string(status),
           total_events_processed: count,
           last_payload: payload,
           last_seen_at: timestamp,

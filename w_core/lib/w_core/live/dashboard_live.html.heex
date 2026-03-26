@@ -1,0 +1,16 @@
+<div class="p-6">
+  <h1 class="text-2xl font-bold mb-4">Planta 42 - Monitoramento</h1>
+
+<div id="nodes" phx-update="stream">
+  <div
+    :for={{id, node} <- @streams.nodes}
+    id={id}
+    class={"p-4 border rounded mb-2 " <> status_class(node.status)}
+  >
+    <p><strong>Node:</strong> <%= node.id %></p>
+    <p>Status: <%= node.status %></p>
+    <p>Eventos: <%= node.count %></p>
+  </div>
+</div>
+</div>
+
