@@ -3,14 +3,12 @@ defmodule WCore.Telemetry.Cache do
 
   @table :w_core_telemetry_cache
 
-  # API
   def start_link(_opts) do
     GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
   end
 
   def table, do: @table
 
-  # CALLBACK
   @impl true
   def init(state) do
     :ets.new(@table, [

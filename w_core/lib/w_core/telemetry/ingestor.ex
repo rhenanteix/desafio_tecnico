@@ -7,7 +7,7 @@ defmodule WCore.Telemetry.Ingestor do
     GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
   end
 
-  def ingest(node_id, payload) do
+  def ingest(%{node_id: node_id, payload: payload}) do
     GenServer.cast(__MODULE__, {:ingest, node_id, payload})
   end
 

@@ -22,6 +22,15 @@ defmodule WCore.Telemetry.WriteBehind do
     {:noreply, state}
   end
 
+  def flush_now do
+    GenServer.call(__MODULE__, :flush_now)
+  end
+
+  def handle_call(:flush_now, _from, state) do
+    flush_to_db()
+    {:reply, :ok, state}
+  end
+
   defp schedule_flush do
     Process.send_after(self(), :flush, @interval)
   end
@@ -32,6 +41,7 @@ defmodule WCore.Telemetry.WriteBehind do
 
   defp persist do
     table = Cache.table()
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
 
     entries =
       :ets.tab2list(table)
@@ -41,9 +51,9 @@ defmodule WCore.Telemetry.WriteBehind do
           status: Atom.to_string(status),
           total_events_processed: count,
           last_payload: payload,
-          last_seen_at: timestamp,
-          inserted_at: DateTime.utc_now(),
-          updated_at: DateTime.utc_now()
+          last_seen_at: DateTime.truncate(timestamp, :second),
+          inserted_at: now,
+          updated_at: now
         }
       end)
 
@@ -64,6 +74,9 @@ defmodule WCore.Telemetry.WriteBehind do
           ]},
           conflict_target: [:node_id]
         )
+
+        # 🔥 evita duplicação infinita
+        :ets.delete_all_objects(table)
     end
   end
 end
