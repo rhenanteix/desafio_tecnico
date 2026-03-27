@@ -7,10 +7,15 @@ defmodule WCore.Telemetry.Ingestor do
     GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
   end
 
-  def ingest(%{node_id: node_id, payload: payload}) do
+  # ✅ NOVO (compatível com o teste)
+  def ingest(node_id, payload) do
     GenServer.cast(__MODULE__, {:ingest, node_id, payload})
   end
 
+  # (opcional - manter compatibilidade com versão antiga)
+  def ingest(%{node_id: node_id, payload: payload}) do
+    ingest(node_id, payload)
+  end
 
   @impl true
   def init(state), do: {:ok, state}
@@ -34,9 +39,7 @@ defmodule WCore.Telemetry.Ingestor do
 
     :ets.insert(@table, {node_id, new_status, increment(node_id), payload, now})
 
-    status_changed? = current_status != new_status
-
-    if status_changed? do
+    if current_status != new_status do
       Phoenix.PubSub.broadcast(
         WCore.PubSub,
         "telemetry",
