@@ -19,6 +19,12 @@ config :w_core, WCoreWeb.Endpoint,
     ]
   ]
 
+  config :w_core, WCore.Repo,
+  database: System.get_env("DATABASE_PATH") || "data/w_core.db",
+  pool_size: 5,
+  journal_mode: :wal,
+  busy_timeout: 5000
+
 # Configure Swoosh API Client
 config :swoosh, api_client: Swoosh.ApiClient.Req
 
