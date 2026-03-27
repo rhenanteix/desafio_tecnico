@@ -74,9 +74,6 @@ defmodule WCore.Telemetry.WriteBehind do
           ]},
           conflict_target: [:node_id]
         )
-
-        # 🔥 evita duplicação infinita
-        :ets.delete_all_objects(table)
     end
   end
 end

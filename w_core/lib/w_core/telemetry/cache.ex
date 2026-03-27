@@ -7,18 +7,22 @@ defmodule WCore.Telemetry.Cache do
     GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
   end
 
-  def table, do: @table
-
-  @impl true
   def init(state) do
-    :ets.new(@table, [
-      :named_table,
-      :public,
-      :set,
-      read_concurrency: true,
-      write_concurrency: true
-    ])
+    case :ets.whereis(@table) do
+      :undefined ->
+        :ets.new(@table, [
+          :named_table,
+          :public,
+          read_concurrency: true,
+          write_concurrency: true
+        ])
+
+      _tid ->
+        :ok
+    end
 
     {:ok, state}
   end
+
+  def table, do: @table
 end

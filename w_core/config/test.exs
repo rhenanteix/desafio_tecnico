@@ -17,8 +17,7 @@ import Config
 config :w_core, WCore.Repo,
   database: "w_core_test.db",
   pool: Ecto.Adapters.SQL.Sandbox,
-  pool_size: 1,
-  busy_timeout: 10_000
+  pool_size: 1
 
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
